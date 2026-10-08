@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Для Настеночки</title>
+    <!-- Google Fonts & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #083c9c;
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Интерактивный Canvas Фон */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* ЭКРАН ПРИВЕТСТВИЯ (INTRO) */
+        #intro-screen {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle, #083c9c 0%, #1e1e6d 100%);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease, visibility 1s;
+        }
+
+        .start-btn {
+            background: linear-gradient(45deg, #c030be, #b9b3b3);
+            padding: 20px 40px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(255, 42, 122, 0.5);
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .start-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(255, 42, 122, 0.8);
+        }
+
+        /* ОСНОВНОЙ КОНТЕНТ */
+        .main-content {
+            position: relative;
+            z-index: 2;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1.5s ease;
+        }
+
+        .visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ЗАГОЛОВОК */
+        header {
+            text-align: center;
+            margin-top: 50px;
+            margin-bottom: 80px;
+        }
+
+        .romantic-title {
+            font-family: 'Great Vibes', cursive;
+            font-size: 5rem;
+            background: linear-gradient(45deg, #c030be, #ff7eb3, #ff2a7a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(255, 42, 122, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+            color: #d1b3ff;
+            text-transform: uppercase;
+        }
+
+        /* СЕТКА С КАРТОЧКАМИ (GLASSMORPHISM + 3D TILT) */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 80px;
+            perspective: 1000px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.5s ease;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .glass-card:hover {
+            box-shadow: 0 20px 40px rgba(255, 42, 122, 0.25);
+            border-color: rgba(255, 117, 140, 0.4);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #c030be;
+            text-shadow: 0 0 15px rgba(255, 65, 108, 0.6);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .card-text {
+            color: #c4b5fd;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        /* СЕКЦИЯ С ВАУ-СЮРПРИЗОМ */
+        .surprise-section {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 60px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 50px;
+        }
+
+        .magic-btn {
+            background: linear-gradient(45deg, #c030be, #ccbfc6);
+            border: none;
+            color: white;
+            padding: 20px 50px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(192, 143, 199, 0.6);
+            transition: all 0.3s ease;
+        }
+
+        .magic-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 50px rgba(255, 20, 147, 0.8);
+        }
+
+        /* МОДАЛЬНОЕ ОКНО */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background: #083c9c;
+            border: 1px solid #bab4b6;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            text-align: center;
+            transform: scale(0.7);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 50px rgba(255, 254, 254, 0.5);
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .close-btn {
+            margin-top: 20px;
+            background: transparent;
+            border: 1px solid #d5cfd5;
+            color: #ffffff;
+            padding: 10px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .close-btn:hover {
+            background: #b3b4c5;
+        }
+
+        /* АНИМАЦИИ */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .romantic-title { font-size: 3.5rem; }
+            .subtitle { font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Фоновые частицы -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Экран Старта (Разблокирует звук и запускает анимацию) -->
+    <div id="intro-screen">
+        <h2 style="margin-bottom: 20px; font-weight: 300;">Нажми на меня</h2>
+        <button class="start-btn" onclick="startExperience()">Запустить</button>
+    </div>
+
+    <!-- Аудио плеер (Замени ссылку на вашу любимую песню при желании) -->
+    <audio id="bg-music" loop>
+        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Основной сайт -->
+    <div class="main-content" id="content">
+        <header>
+            <h1 class="romantic-title">Лапушка</h1>
+            <p class="subtitle">Ты — лучшее, что случилось со мной</p>
+        </header>
+
+        <!-- Карточки -->
+        <div class="cards-grid">
+            <div class="glass-card" data-tilt>
+                <i class="fa-solid fa-heart card-icon"></i>
+                <h3 class="card-title">Твоя Улыбка</h3>
+                <p class="card-text">Она способны осветить даже самый пасмурный и тяжелый день. Когда ты улыбаешься, моя душа радуется.</p>
+            </div>
+
+            <div class="glass-card" data-tilt>
+                <i class="fa-solid fa-gem card-icon"></i>
+                <h3 class="card-title">Твоя Уникальность</h3>
+                <p class="card-text">В тебе сочетаются невероятная доброта, ум, красота и нежность. Ты абсолютно особенная и неповторимая.</p>
+            </div>
+
+            <div class="glass-card" data-tilt>
+                <i class="fa-solid fa-infinity card-icon"></i>
+                <h3 class="card-title">Наша любовь</h3>
+                <p class="card-text">Быть рядом, поддерживать все твои мечты, ценить каждую секунду, проведенную вместе, и делать тебя счастливой.</p>
+            </div>
+        </div>
+
+        <!-- Кнопка Интерактивного Сюрприза -->
+        <div class="surprise-section">
+            <h2 style="font-size: 2rem; margin-bottom: 20px;">Готова к главному?</h2>
+            <button class="magic-btn" onclick="showSurprise()">Нажми сюда</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно сюрприза -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <i class="fa-solid fa-crown" style="font-size: 4rem; color: #ffd700; margin-bottom: 20px;"></i>
+            <h2 style="font-size: 2rem; margin-bottom: 15px; color: #fff;">Ты моя принцесса</h2>
+            <p style="color: #ffffff; line-height: 1.6;">Я просто хотел напомнить тебе, как сильно я тебя люблю. Спасибо за то, что ты есть в моей жизни</p>
+            <button class="close-btn" onclick="closeModal()">Закрыть с улыбкой)</button>
+        </div>
+    </div>
+
+    <script>
+        // 1. Скрипт Запуска Сайта
+        function startExperience() {
+            const intro = document.getElementById('intro-screen');
+            const content = document.getElementById('content');
+            const music = document.getElementById('bg-music');
+
+            // Запуск музыки
+            music.play().catch(e => console.log("Music play blocked"));
+
+            // Скрытие интро и показ сайта
+            intro.style.opacity = '0';
+            intro.style.visibility = 'hidden';
+            
+            setTimeout(() => {
+                content.classList.add('visible');
+            }, 300);
+        }
+
+        // 2. Интерактивная модалка и Конфетти
+        function showSurprise() {
+            document.getElementById('modal').classList.add('active');
+            
+            // Запуск Взрыва Сердечек (Confetti)
+            var duration = 3 * 1000;
+            var animationEnd = Date.now() + duration;
+            var skew = 1;
+
+            (function frame() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return;
+
+                var ticks = Math.max(200, 500 * (timeLeft / duration));
+                skew = Math.max(0.8, skew - 0.001);
+
+                confetti({
+                    particleCount: 3,
+                    startVelocity: 0,
+                    ticks: ticks,
+                    origin: {
+                        x: Math.random(),
+                        y: (Math.random() * skew) - 0.2
+                    },
+                    colors: ['#ff416c', '#ff4b2b', '#ff758c', '#ffffff'],
+                    shapes: ['circle'],
+                    gravity: 0.6,
+                    scalar: 1.2,
+                    drift: 0
+                });
+
+                requestAnimationFrame(frame);
+            }());
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        // 3. 3D Tilt эффект для карточек (Реакция на движения мыши)
+        const cards = document.querySelectorAll('.glass-card');
+        
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 10;
+                const rotateY = (centerX - x) / 10;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(10px)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0)';
+            });
+        });
+
+        // 4. Генерация частиц (Interactive Canvas Background)
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.speedY = Math.random() * 1 - 0.5;
+                this.color = `hsl(${Math.random() * 60 + 320}, 100%, 70%)`;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x > width) this.x = 0;
+                if (this.x < 0) this.x = width;
+                if (this.y > height) this.y = 0;
+                if (this.y < 0) this.y = height;
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        const particles = [];
+        for (let i = 0; i < 80; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+
+        animateParticles();
+    </script>
+</body>
+</html>
